@@ -15,38 +15,60 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       formdata: {
-        username: '',
-        password: ''
+        username: "",
+        password: ""
       }
-    }
+    };
   },
   methods: {
     // 发起登录请求
-    async handlelogin () {
-      const res = await this.$http.post(`login`, this.formdata)
+    async handlelogin() {
+      const res=await this.$http.post(`login`, this.formdata)
       const {
-        data: {
-          data: {token},
-          meta: { msg, status }
-        }
-      } = res
-      //
-      if (status === 200) {
-        console.log('login---成功')
+          data: {
+            data: {token},
+            meta: { msg, status }
+          }
+        } = res;
+        if(status===200){
+          // console.log('登录成功')
         localStorage.setItem('token', token)
 
-        this.$router.push({
+          this.$router.push({
           name: 'home'
         })
-      } else {
-        this.$message.error(msg)
-      }
+        }else{
+          console.log("登录失败")
+          this.$message.error(msg)
+        }
     }
+
+    // async handlelogin () {
+    //   const res = await this.$http.post(`login`, this.formdata)
+    //   const {
+    //     data: {
+    //       data: {token},
+    //       meta: { msg, status }
+    //     }
+    //   } = res
+    //   //
+    //   if (status === 200) {
+    //     console.log('login---成功')
+    //     // localStorage.setItem('token', token)
+
+    //     this.$router.push({
+    //       name: 'home'
+    //     })
+    //   } else {
+    //     console.log('login---失败')
+    //     // this.$message.error(msg)
+    //   }
+    // }
   }
-}
+};
 </script>
 
 <style>
