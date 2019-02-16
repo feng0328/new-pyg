@@ -3,7 +3,7 @@ import Router from 'vue-router'
 // import HelloWorld from '@/components/HelloWorld'
 import Login from '@/components/login.vue'
 import Home from '@/components/home.vue'
-import '@/assets/css/baes.css'
+import Users from '@/components/users.vue'
 
 Vue.use(Router)
 
@@ -15,6 +15,11 @@ export default new Router({
   }, {
     path: '/',
     name: 'home',
-    component: Home
+    component: Home,
+    children: [{
+      path: '/users',
+      name: 'users',
+      component: Users
+    }]
   }]
 })
