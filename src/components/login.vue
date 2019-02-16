@@ -25,26 +25,46 @@ export default {
   },
   methods: {
     // 发起登录请求
-    async handlelogin () {
-      const res = await this.$http.post(`login`, this.formdata)
-      const {
-        data: {
-          data: {token},
-          meta: { msg, status }
-        }
-      } = res
-      //
-      if (status === 200) {
-        console.log('login---成功')
-        localStorage.setItem('token', token)
-
-        this.$router.push({
+    handlelogin(){
+      this.$http
+      .post(`login`,this.formdata)
+      .then(res=>{
+        console.log(res)
+        const {data:{data,meta:{msg,status}}}=res;
+        if(status===200){
+          console.log('成功')
+          this.$router.push({
           name: 'home'
         })
-      } else {
-        this.$message.error(msg)
-      }
+        }else{
+          console.log('失败')
+        }
+      })
+      .catch(err=>{
+        console.log(err)
+      })
+      
     }
+    // async handlelogin () {
+    //   const res = await this.$http.post(`login`, this.formdata)
+    //   const {
+    //     data: {
+    //       data: {token},
+    //       meta: { msg, status }
+    //     }
+    //   } = res
+    //   //
+    //   if (status === 200) {
+    //     console.log('login---成功')
+    //     localStorage.setItem('token', token)
+
+    //     this.$router.push({
+    //       name: 'home'
+    //     })
+    //   } else {
+    //     this.$message.error(msg)
+    //   }
+    // }
   }
 }
 </script>
