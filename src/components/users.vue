@@ -32,7 +32,7 @@
       <el-table-column label="创建日期" width="130">
         <template slot-scope="scope">{{scope.row.create_time | fmtdate}}</template>
       </el-table-column>
-      <el-table-column prop="name" label="用户状态" width="140">
+      <el-table-column label="用户状态" width="140">
         <!-- 前提: 单元格内容是一个组件, 不是porp的值 -->
         <template slot-scope="scope">
           <!-- 内容 -->
@@ -48,6 +48,15 @@
       </el-table-column>
     </el-table>
     <!--分页 -->
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[2, 4, 6, 8]"
+      :page-size="2"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+    ></el-pagination>
   </el-card>
 </template>
 
@@ -57,7 +66,10 @@ export default {
     return {
       query: "",
       pagenum: 1,
-      pagesize: 5,
+      pagesize:2,
+      total:-1,
+
+
       list: []
     };
   },
@@ -65,6 +77,12 @@ export default {
     this.getTableData();
   },
   methods: {
+     handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
+      },
     async getTableData() {
       // query	查询参数	可以为空
       // pagenum	当前页码	不能为空
@@ -79,12 +97,13 @@ export default {
           this.pagesize
         }`
       );
-      // console.log(res);
+      console.log(res);
       const {
         data,
         meta: { status, msg }
       } = res.data;
       if (status === 200) {
+        this.total=data.total
         this.list = data.users;
         // console.log(this.list);
       }
