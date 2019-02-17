@@ -17,14 +17,35 @@
     </el-row>
 
     <!-- 表格 -->
+    <!-- "id": 28,
+        "username": "tige1200",
+        "mobile": "test",
+        "type": 1,
+        "openid": "",
+        "email": "test@test.com",
+    "create_time": "2017-11-10T03:47:13.533Z",-->
     <el-table :data="list" style="width: 100%">
-      <el-table-column prop="date" label="#" width="80"></el-table-column>
-      <el-table-column prop="name" label="姓名" width="100"></el-table-column>
-      <el-table-column prop="name" label="邮箱" width="200"></el-table-column>
-      <el-table-column prop="name" label="电话" width="200"></el-table-column>
-      <el-table-column prop="name" label="创建日期" width="130"></el-table-column>
-      <el-table-column prop="name" label="用户状态" width="140"></el-table-column>
-      <el-table-column prop="name" label="操作" width="200"></el-table-column>
+      <el-table-column prop="id" label="#" width="80"></el-table-column>
+      <el-table-column prop="username" label="姓名" width="100"></el-table-column>
+      <el-table-column prop="email" label="邮箱" width="200"></el-table-column>
+      <el-table-column prop="mobile" label="电话" width="200"></el-table-column>
+      <el-table-column label="创建日期" width="130">
+        <template slot-scope="scope">{{scope.row.create_time | fmtdate}}</template>
+      </el-table-column>
+      <el-table-column prop="name" label="用户状态" width="140">
+        <!-- 前提: 单元格内容是一个组件, 不是porp的值 -->
+        <template slot-scope="scope">
+          <!-- 内容 -->
+          <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+        </template>
+      </el-table-column>
+      <el-table-column prop="name" label="操作" width="200">
+        <template slot-scope="scope">
+          <el-button type="primary" icon="el-icon-edit" circle size="mini" plain></el-button>
+          <el-button type="danger" icon="el-icon-delete" circle size="mini" plain></el-button>
+          <el-button type="success" icon="el-icon-check" circle size="mini" plain></el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <!--分页 -->
   </el-card>
@@ -34,14 +55,14 @@
 export default {
   data() {
     return {
-      quere: "",
-      pagenum: "",
-      pagesize: "",
+      query: "",
+      pagenum: 1,
+      pagesize: 5,
       list: []
     };
   },
   created() {
-    this.getTebleData();
+    this.getTableData();
   },
   methods: {
     async getTableData() {
@@ -58,7 +79,15 @@ export default {
           this.pagesize
         }`
       );
-      console.log(res);
+      // console.log(res);
+      const {
+        data,
+        meta: { status, msg }
+      } = res.data;
+      if (status === 200) {
+        this.list = data.users;
+        // console.log(this.list);
+      }
     }
   }
 };
