@@ -9,10 +9,16 @@
     <!-- 搜索栏 -->
     <el-row class="searchBox">
       <el-col>
-        <el-input class="searchInput" placeholder="请输入内容" v-model="query">
-          <el-button slot="append" icon="el-icon-search"></el-button>
+        <el-input
+          @clear="getAllUsers()"
+          class="searchInput"
+          placeholder="请输入内容"
+          v-model="query"
+          clearable
+        >
+          <el-button @click="searchUsers()" slot="append" icon="el-icon-search"></el-button>
         </el-input>
-        <el-button type="primary">添加用户</el-button>
+        <el-button type="primary" @click="showDiaAddUsers()">添加用户</el-button>
       </el-col>
     </el-row>
 
@@ -57,7 +63,29 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
     ></el-pagination>
+    <!-- 添加对话框1 -->
+    <el-dialog title="收货地址" :visible.sync="dialogFormVisibleAdd">
+      <el-form label-position="left" label-width="80px" :model="formdata">
+        <el-form-item label="名称">
+          <el-input v-model="formdata.username"></el-input>
+        </el-form-item>
+        <el-form-item label="名称">
+          <el-input v-model="formdata.password"></el-input>
+        </el-form-item>
+        <el-form-item label="名称">
+          <el-input v-model="formdata.email"></el-input>
+        </el-form-item>
+        <el-form-item label="名称">
+          <el-input v-model="formdata.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleAdd = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisibleAdd = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
+  <!-- 添加 -->
 </template>
 
 <script>
@@ -66,23 +94,47 @@ export default {
     return {
       query: "",
       pagenum: 1,
-      pagesize:2,
-      total:-1,
-
-
-      list: []
+      pagesize: 2,
+      total: -1,
+      dialogFormVisibleAdd: false,
+      list: [],
+      formdata: {
+        //         username	用户名称	不能为空
+        // password	用户密码	不能为空
+        // email	邮箱	可以为空
+        // mobile	手机号	可以为空
+        username: "",
+        password: "",
+        email: "",
+        mobile: ""
+      }
     };
   },
   created() {
     this.getTableData();
   },
   methods: {
-     handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
-      },
+    showDiaAddUsers() {
+      this.dialogFormVisibleAdd=true
+    },
+    getAllUsers() {
+      this.getTableData();
+    },
+    searchUsers() {
+      this.pegenum = 1;
+      this.getTableData();
+    },
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+      this.pagenum = 1;
+      this.pagesize = val;
+      this.getTableData();
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+      this.pagenum = val;
+      this.getTableData();
+    },
     async getTableData() {
       // query	查询参数	可以为空
       // pagenum	当前页码	不能为空
@@ -103,7 +155,7 @@ export default {
         meta: { status, msg }
       } = res.data;
       if (status === 200) {
-        this.total=data.total
+        this.total = data.total;
         this.list = data.users;
         // console.log(this.list);
       }
