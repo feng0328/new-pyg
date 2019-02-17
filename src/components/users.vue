@@ -48,7 +48,14 @@
       <el-table-column prop="name" label="操作" width="200">
         <template slot-scope="scope">
           <el-button type="primary" icon="el-icon-edit" circle size="mini" plain></el-button>
-          <el-button type="danger" icon="el-icon-delete" circle size="mini" plain></el-button>
+          <el-button
+            @click="showMsgBox(scope.row)"
+            type="danger"
+            icon="el-icon-delete"
+            circle
+            size="mini"
+            plain
+          ></el-button>
           <el-button type="success" icon="el-icon-check" circle size="mini" plain></el-button>
         </template>
       </el-table-column>
@@ -66,22 +73,22 @@
     <!-- 添加对话框1 -->
     <el-dialog title="收货地址" :visible.sync="dialogFormVisibleAdd">
       <el-form label-position="left" label-width="80px" :model="formdata">
-        <el-form-item label="名称">
+        <el-form-item label="用户名">
           <el-input v-model="formdata.username"></el-input>
         </el-form-item>
-        <el-form-item label="名称">
+        <el-form-item label="密码">
           <el-input v-model="formdata.password"></el-input>
         </el-form-item>
-        <el-form-item label="名称">
+        <el-form-item label="邮箱">
           <el-input v-model="formdata.email"></el-input>
         </el-form-item>
-        <el-form-item label="名称">
+        <el-form-item label="手机号">
           <el-input v-model="formdata.mobile"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleAdd = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleAdd = false">确 定</el-button>
+        <el-button type="primary" @click="AddUsers()">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -114,8 +121,47 @@ export default {
     this.getTableData();
   },
   methods: {
+    showMsgBox(users) {
+      this.$confirm("确定删除此用户?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(async () => {
+          const res = await this.$http.delete(`users/${users.id}`);
+          
+          // 对象解构
+          const {meta:{msg,status}} = res.data
+          if(status===200){
+
+            this.$message.success( "删除成功!");
+
+            // 刷新列表
+            this.pagenum = 1;
+            this.getTableData();
+          }
+            
+        })
+        .catch(() => {
+          this.$message.info("已取消删除");
+            
+        });
+    },
+    async AddUsers() {
+      // 添加用户数据
+      const res = await this.$http.post("users", this.formdata);
+
+      console.log(res);
+
+      // 关闭对话框
+      this.dialogFormVisibleAdd = false;
+
+      // 刷新列表
+      this.getTableData();
+    },
+
     showDiaAddUsers() {
-      this.dialogFormVisibleAdd=true
+      this.dialogFormVisibleAdd = true;
     },
     getAllUsers() {
       this.getTableData();
