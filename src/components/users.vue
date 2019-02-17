@@ -47,7 +47,14 @@
       </el-table-column>
       <el-table-column prop="name" label="操作" width="200">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" circle size="mini" plain></el-button>
+          <el-button
+            @click="showDiaEditUsers()"
+            type="primary"
+            icon="el-icon-edit"
+            circle
+            size="mini"
+            plain
+          ></el-button>
           <el-button
             @click="showMsgBox(scope.row)"
             type="danger"
@@ -71,7 +78,7 @@
       :total="total"
     ></el-pagination>
     <!-- 添加对话框1 -->
-    <el-dialog title="收货地址" :visible.sync="dialogFormVisibleAdd">
+    <el-dialog title="添加用户" :visible.sync="dialogFormVisibleAdd">
       <el-form label-position="left" label-width="80px" :model="formdata">
         <el-form-item label="用户名">
           <el-input v-model="formdata.username"></el-input>
@@ -91,6 +98,25 @@
         <el-button type="primary" @click="AddUsers()">确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 编辑用户对话框 -->
+    <el-dialog title="编辑用户" :visible.sync="dialogFormVisibleEdit">
+      <el-form label-position="left" label-width="80px" :model="formdata">
+        <el-form-item label="用户名">
+          <el-input v-model="formdata.username"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="formdata.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号">
+          <el-input v-model="formdata.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
+        <el-button type="primary" @click="EditUsers()">确 定</el-button>
+      </div>
+    </el-dialog>
+    
   </el-card>
   <!-- 添加 -->
 </template>
@@ -106,7 +132,7 @@ export default {
       dialogFormVisibleAdd: false,
       list: [],
       formdata: {
-        //         username	用户名称	不能为空
+        // username	用户名称	不能为空
         // password	用户密码	不能为空
         // email	邮箱	可以为空
         // mobile	手机号	可以为空
@@ -121,6 +147,12 @@ export default {
     this.getTableData();
   },
   methods: {
+    // 修改用户数据
+    showDiaEditUsers() {
+      this.dialogFormVisibleEdit;
+    },
+    EditUsers() {},
+    // 显示删除框
     showMsgBox(users) {
       this.$confirm("确定删除此用户?", "提示", {
         confirmButtonText: "确定",
@@ -129,24 +161,24 @@ export default {
       })
         .then(async () => {
           const res = await this.$http.delete(`users/${users.id}`);
-          
-          // 对象解构
-          const {meta:{msg,status}} = res.data
-          if(status===200){
 
-            this.$message.success( "删除成功!");
+          // 对象解构
+          const {
+            meta: { msg, status }
+          } = res.data;
+          if (status === 200) {
+            this.$message.success("删除成功!");
 
             // 刷新列表
             this.pagenum = 1;
             this.getTableData();
           }
-            
         })
         .catch(() => {
           this.$message.info("已取消删除");
-            
         });
     },
+    // 添加用户数据
     async AddUsers() {
       // 添加用户数据
       const res = await this.$http.post("users", this.formdata);
@@ -159,17 +191,21 @@ export default {
       // 刷新列表
       this.getTableData();
     },
-
+    // 显示添加用户提示框
     showDiaAddUsers() {
+      this.formdata = {};
       this.dialogFormVisibleAdd = true;
     },
+    // 显示全部用户
     getAllUsers() {
       this.getTableData();
     },
+    // 查询用户
     searchUsers() {
       this.pegenum = 1;
       this.getTableData();
     },
+    // 翻页组件
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
       this.pagenum = 1;
@@ -181,6 +217,7 @@ export default {
       this.pagenum = val;
       this.getTableData();
     },
+    //  渲染表格
     async getTableData() {
       // query	查询参数	可以为空
       // pagenum	当前页码	不能为空
