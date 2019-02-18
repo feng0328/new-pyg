@@ -150,7 +150,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleRole = false">确 定</el-button>
+        <el-button type="primary" @click="setRole()">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -182,18 +182,31 @@ export default {
       //下拉框数据
       selectVal: -1,
       // 用户数据组
-      roles: []
+      roles: [],
+      currUserId:'',
     };
   },
   created() {
     this.getTableData();
   },
   methods: {
+    // 分配角色  更改角色
+    async setRole(){
+      const res= await this.$http.put(`users/${this.currUserId}/role`,{
+        rid:this.selectVal
+      })
+      const {meta:{msg,status},data}=res.data
+      if(status===200){
+        this.dialogFormVisibleRole= false
+        this.$message.success(msg)
+      }
+    },
     // 分配角色  显示对话框
     async showDiaSetRole(user) {
+      this.currUserId=user.id
       this.formdata=user
       this.dialogFormVisibleRole = true;
-      const res = await this.$http.get("roles");
+      const res = await this.$http.get(`roles`);
       // console.log(res);
       const {
         meta: { msg, status },
@@ -201,7 +214,11 @@ export default {
       } = res.data;
       if (status === 200) {
         this.roles = data;
-      }
+      };
+
+      const res2=await this.$http.get(`users/${user.id}`)
+      this.selectVal=res2.data.data.rid
+
     },
     // 修改用户状态
     async changeState(user) {
