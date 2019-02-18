@@ -6,14 +6,19 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import '@/assets/css/baes.css'
-import axios from 'axios'
 import moment from 'moment'
-import CusBraed from './components/cusBraed.vue'
-axios.defaults.baseURL = 'http://localhost:8888/api/private/v1/'
-Vue.prototype.$http = axios
+import CusBraed from '@/components/cusBraed.vue'
+
+import HttpServer from '@/components/http'
+// import axios from 'axios'
+// axios.defaults.baseURL = 'http://localhost:8888/api/private/v1/'
+// Vue.prototype.$http = axios
 
 
 Vue.use(ElementUI)
+Vue.use(HttpServer)
+
+
 Vue.config.productionTip = false
 
 
