@@ -23,7 +23,7 @@ HttpServer.install = function(Vue) {
       // 如果请求是login, 直接发送请求
       if (config.url !== 'login') {
         const AUTH_TOKEN = localStorage.getItem('token')
-        axios.defaults.headers.common['Authorization'] = AUTH_TOKEN
+        config.headers['Authorization'] = AUTH_TOKEN
       }
       // 当请求不是login, 先加头部,然后继续发送请求
   
