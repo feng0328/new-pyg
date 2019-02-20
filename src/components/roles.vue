@@ -69,9 +69,9 @@
       </el-table-column>
     </el-table>
     <!-- 对话框  分配权限:before-close="handleClose" -->
-    <el-dialog title="分配权限" :visible.sync="dialogVisible" width="30%" >
+    <el-dialog title="分配权限" :visible.sync="dialogVisible" width="30%">
       <el-tree
-      ref="treeDom"
+        ref="treeDom"
         :data="treedata"
         show-checkbox
         node-key="id"
@@ -82,7 +82,7 @@
       ></el-tree>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="setRights()">确 定</el-button>
       </span>
     </el-dialog>
   </el-card>
@@ -95,22 +95,50 @@ export default {
       roles: [],
       dialogVisible: false,
       // 树形数据
-      treedata:[],
-    //   默认展开的数据
-      arrExpand:[],
+      treedata: [],
+      //   默认展开的数据
+      arrExpand: [],
       // 默认选中的数据
-      arrCheck:[],
+      arrCheck: [],
       // 配置选项  来源于树形数据treedata中的key名
-      defaultProps:{
-          label:'authName',
-          children:'children',
-      }
+      defaultProps: {
+        label: "authName",
+        children: "children"
+      },
+      // roles/:roleId/rights
+      currRoleId: -1
     };
   },
   created() {
     this.getRoles();
   },
   methods: {
+    //   添加权限 roles/:roleId/rights
+    async setRights() {
+      const arr1 = this.$refs.treeDom.getCheckedKeys();
+      // console.log(arr1);
+
+      // 获取树形结构中半选id
+      const arr2 = this.$refs.treeDom.getHalfCheckedKeys();
+      // console.log(arr2);
+
+      // ES6 展开操作运算符
+      const arr = [...arr1, ...arr2];
+
+      const res = await this.$http.post(`roles/${this.currRoleId}/rights`, {
+        rids: arr.join(",")
+      });
+      const {
+        data,
+        meta: { msg, status }
+      } = res.data;
+      if (status === 200) {
+        // 刷新列表
+        this.getRoles()
+        // 关闭对话框
+        this.dialogVisible = false;
+      }
+    },
     //   删除单独权限
     async deleRights(role, rights) {
       const res = await this.$http.delete(
@@ -135,21 +163,33 @@ export default {
       // console.log(res);
       // const {data,meta:{msg,status}} = res.data
       this.roles = res.data.data;
-      console.log(this.roles);
+      // console.log(this.roles);
     },
     // 显示分配权限
-    async  showDiaSetRights() {
-        const res=await this.$http.get(`rights/tree`)
-        console.log(res);
-        const {meta:{msg,status},data}=res.data;
-        if(status===200){
-            this.treedata=data
+    async showDiaSetRights(role) {
+      this.currRoleId = role.id;
+      const res = await this.$http.get(`rights/tree`);
+      // console.log(res);
+      const {
+        meta: { msg, status },
+        data
+      } = res.data;
+      if (status === 200) {
+        this.treedata = data;
         //    this.treedata.id= arrExpand
-
-
-        
-        }
-        
+      }
+      const temp = [];
+      role.children.forEach(item1 => {
+        // temp.push(item1.id);
+        item1.children.forEach(item2 => {
+          // temp.push(item2.id);
+          item2.children.forEach(item3 => {
+            temp.push(item3.id);
+          });
+        });
+      });
+      // console.log(temp);
+      this.arrCheck = temp;
       this.dialogVisible = true;
     }
   }

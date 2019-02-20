@@ -37,14 +37,14 @@ export default {
       } = res
       //
       if (status === 200) {
-        // console.log('login---成功')
+        console.log('login---成功')
         localStorage.setItem('token', token)
 
         this.$router.push({
           name: 'home'
         })
       } else {
-        // console.log('login---失败')
+        console.log('login---失败')
         this.$message.error(msg)
       }
     }
