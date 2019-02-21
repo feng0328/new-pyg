@@ -69,10 +69,10 @@
           </el-form-item>
         </el-tab-pane>
         <el-tab-pane label="商品内容" name="5">
-          <el-form-item label="" >
+          <el-form-item label>
             <el-button @click="addGoods()" type="primary" class="btn">添加商品</el-button>
             <!-- vue项目的富文本 -->
-           <quillEditor class="fwb"></quillEditor>
+            <quillEditor v-model="form.goods_introduce" class="fwb"></quillEditor>
           </el-form-item>
         </el-tab-pane>
       </el-tabs>
@@ -108,7 +108,8 @@ export default {
         goods_number: "", // 商品数量
         goods_weight: "", // 商品重量
         goods_introduce: "", // 商品介绍
-        pics: "", // 图片
+
+        pics: [], // 图片
         attrs: "" // 商品属性
         // arrDy:[]
       },
@@ -135,26 +136,73 @@ export default {
   },
   methods: {
     //  商品内容
-    addGoods() {},
+    async addGoods() {
+      // goods_cat	以为','分割的分类列表[1,3,6]	不能为空
+      // pics	上传的图片临时路径（对象）	可以为空
+      this.form.goods_cat = this.selectedOptions.join(",");
+      // this.pics
+
+      //  处理动态数据
+      const obj1 = { attr_id: "", sttr_value: "" };
+      const arr1 = [];
+      this.arrDy.forEach(item => {
+        obj1.attr_id = item.attr_id;
+        obj1.sttr_value = item.sttr_vals;
+        arr1.push(obj1);
+      });
+      //  处理静态数据
+      const obj2 = { attr_id: "", sttr_value: "" };
+      const arr2 = [];
+      this.arrStatic.forEach(item => {
+        obj2.attr_id = item.attr_id;
+        obj2.sttr_value = item.sttr_vals;
+        arr2.push(obj1);
+      });
+      this.form.attrs = [...arr1, ...arr2];
+      // attrs	商品的参数（数组）	可以为空 [{attr_id:?,attr_value:?}]来源于arrDy和arrStatic
+      const res = await this.$http.post(`goods`, this.form);
+      const {
+        meta: { msg, status }
+      } = res.data;
+      if (status === 201) {
+        this.$router.push({
+          name: "goods"
+        });
+      } else {
+        this.$message.error(msg);
+      }
+    },
     //  上传图片的两个方法
     handleRemove(file, fileList) {
-      console.log("移除成功----");
+      // console.log("移除成功----");
 
-      console.log(file);
-      // file.response.data.tmp_path
+      // console.log(file);
+      //
+      const Index = this.form.pics.map(item => {
+        return item.pic === file.response.data.tmp_path;
+      });
+      this.form.pics.splice(Index, 1);
     },
 
     handleSuccess(res, file, fileList) {
-      console.log("上传成功----");
-      console.log(res);
+      // console.log("上传成功----");
+      // console.log(res);
 
       // res.data.data.tmp_path
+      this.form.pics.push({
+        pic: res.data.tmp_path
+      });
     },
     // 点击tab获取数据
     async chengeTab() {
       if (this.active === "2" || this.active === "3") {
         if (this.selectedOptions.length !== 3) {
           this.$message.error("请先选择三级分类!");
+          if (this.active === "2") {
+            this.arrDy = [];
+          } else {
+            this.arrStatic = [];
+          }
           return;
         }
         // 获取动态数据
@@ -231,12 +279,12 @@ export default {
   height: 400px;
   overflow: auto;
 }
-.ql-editor , .ql-blank{
+.ql-editor,
+.ql-blank {
   min-height: 200px;
   /* margin-top: 20px; */
 }
-.btn{
+.btn {
   margin-bottom: 20px;
 }
-
 </style>
