@@ -25,27 +25,27 @@ export default {
   },
   methods: {
     // 发起登录请求
-   
 
-    async handlelogin () {
-      const res = await this.$http.post(`login`, this.formdata)
+    async handlelogin() {
+      const res = await this.$http.post(`login`, this.formdata);
       const {
         data: {
-          data: {token},
+          data: { token },
           meta: { msg, status }
         }
-      } = res
+      } = res;
       //
+      // const data = res.data;
       if (status === 200) {
-        console.log('login---成功')
-        localStorage.setItem('token', token)
+        console.log("login---成功");
+        localStorage.setItem("token", token);
 
         this.$router.push({
-          name: 'home'
-        })
+          name: "home"
+        });
       } else {
-        console.log('login---失败')
-        this.$message.error(msg)
+        console.log("login---失败");
+        this.$message.error(msg);
       }
     }
   }
