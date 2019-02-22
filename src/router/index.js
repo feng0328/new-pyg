@@ -8,6 +8,8 @@ import Rights from '@/components/rights.vue'
 import Roles from '@/components/roles.vue'
 import Goodslist from '@/components/goodslist.vue'
 import Goodsadd from '@/components/goodsadd.vue'
+// import Params from '@/components/params.vue'
+import Cateparams from '@/components/cateparams.vue'
 
 import {
   Message
@@ -36,15 +38,20 @@ const router = new Router({
       path: '/roles',
       name: 'roles',
       component: Roles
-    },{
+    }, {
       path: '/goods',
       name: 'goods',
       component: Goodslist
-    },{
+    }, {
       // goodsadd
       path: '/goodsadd',
       name: 'goodsadd',
       component: Goodsadd
+    }, {
+      // params 分类列表
+      path: '/params',
+      name: 'params',
+      component: Cateparams
     }]
   }]
 })
