@@ -10,6 +10,8 @@ import Goodslist from '@/components/goodslist.vue'
 import Goodsadd from '@/components/goodsadd.vue'
 // import Params from '@/components/params.vue'
 import Cateparams from '@/components/cateparams.vue'
+// categories
+import Categories from '@/components/categories.vue'
 
 import {
   Message
@@ -52,6 +54,11 @@ const router = new Router({
       path: '/params',
       name: 'params',
       component: Cateparams
+    }, {
+      // params 分类列表
+      path: '/categories',
+      name: 'categories',
+      component: Categories
     }]
   }]
 })

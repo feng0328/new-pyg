@@ -18,7 +18,7 @@
       </el-form-item>
     </el-form>
     <!-- tab栏切换 -->
-    <el-tabs v-model="active" type="border-card">
+    <el-tabs v-model="active" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="动态参数" name="1">
         <el-button disabled class="btn">设置动态参数</el-button>
         <el-table height="450px" border stripe :data="arrDy" style="width: 100%">
@@ -57,8 +57,23 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
-      <el-tab-pane label="静态参数" name="second">
+      <el-tab-pane label="静态参数" name="2">
         <el-button type="init" disabled>设置静态参数</el-button>
+        <el-table height="350px" border stripe :data="arrStatic" style="width: 100%">
+          <!-- 序号 -->
+          <el-table-column type="index" label="#" width="100"></el-table-column>
+
+          <el-table-column prop="attr_name" label="属性名称" width="240"></el-table-column>
+          <el-table-column prop="attr_vals" label="属性值" width="240"></el-table-column>
+
+          <el-table-column label="操作" width="240">
+            <!-- -->
+            <template slot-scope>
+              <el-button plain size="mini" type="primary" icon="el-icon-edit" circle></el-button>
+              <el-button plain size="mini" type="danger" icon="el-icon-delete" circle></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </el-tab-pane>
     </el-tabs>
   </el-card>
@@ -89,7 +104,7 @@ export default {
         children: "children"
       },
       arrDy: [],
-      list: [],
+      arrStatic: [],
       inputVisible: false,
       inputValue: ""
     };
@@ -98,13 +113,30 @@ export default {
     this.getGoodsCate();
   },
   methods: {
-    // 动态改动tag 方法
-    handleClose(item, attr) {
-      item.attr_vals.splice(item.attr_vals.indexOf(attr), 1);
-      // this.arrDy.split(this.arrDy);
-      console.log(item.attr_vals);
+    handleClick() {
+      // console.log(1111);
+      if (this.active === "1") {
+        this.getDydata();
+      }
+      if (this.active === "2") {
+        this.getStaticData();
+      }
     },
-
+    // 动态改动tag 方法
+    async handleClose(item, attr) {
+      item.attr_vals.splice(item.attr_vals.indexOf(attr), 1);
+      //
+      const res = await this.$http.put(
+        `categories/${this.selectedOptions[2]}/attributes/${item.attr_id}`,
+        {
+          attr_name: item.attr_name,
+          attr_sel: "many",
+          attr_vals: item.attr_vals.join(",")
+        }
+      );
+      // console.log(res);
+    },
+    //  显示tag中的input
     showInput() {
       // console.log(1111);
       this.inputVisible = true;
@@ -113,26 +145,28 @@ export default {
       });
     },
 
-    handleInputConfirm(item) {
+    async handleInputConfirm(item) {
       let inputValue = this.inputValue;
       if (inputValue) {
         item.attr_vals.push(inputValue);
+        const res = await this.$http.put(
+          `categories/${this.selectedOptions[2]}/attributes/${item.attr_id}`,
+          {
+            attr_name: item.attr_name,
+            attr_sel: "many",
+            attr_vals: item.attr_vals.join(",")
+          }
+        );
       }
       this.inputVisible = false;
       this.inputValue = "";
     },
     //   联动数据获取方法
-    async handleChange() {
-      //   console.log("级联改变-----");
-      if (this.selectedOptions.length !== 3) {
-        this.$message.warning("请先选择三级分类!");
-        return;
-      }
-      // 获取动态数据
+    // 获取动态数据
+    async getDydata() {
       const res = await this.$http.get(
         `categories/${this.selectedOptions[2]}/attributes?sel=many `
       );
-      // console.log(res);
       const {
         data,
         meta: { msg, status }
@@ -140,7 +174,6 @@ export default {
 
       if (status === 200) {
         this.arrDy = data;
-        console.log("动态参数----");
 
         this.arrDy.forEach(item => {
           if (item.attr_vals.length === 0) {
@@ -149,7 +182,45 @@ export default {
             item.attr_vals = item.attr_vals.trim().split(",");
           }
         });
-        console.log(this.arrDy);
+        // console.log(this.arrDy);
+      }
+    },
+    // 获取静态数据
+    async getStaticData() {
+      const res = await this.$http.get(
+        `categories/${this.selectedOptions[2]}/attributes?sel=only`
+      );
+      // console.log(res);
+      const {
+        meta: { msg, status },
+        data
+      } = res.data;
+
+      if (status === 200) {
+        this.arrStatic = data;
+        // console.log("静态参数----");
+      }
+    },
+    async handleChange() {
+      //   console.log("级联改变-----");
+      if (this.selectedOptions.length !== 3) {
+        this.$message.warning("请先选择三级分类!");
+        if (this.active === "1") {
+          this.arrDy = [];
+        }
+        if (this.active === "2") {
+          this.arrStatic = [];
+        }
+        return;
+      }
+
+      // 获取动态数据
+      if (this.active === "1") {
+        this.getDydata();
+      }
+      // 获取静态数据
+      if (this.active === "2") {
+        this.getStaticData();
       }
     },
     async getGoodsCate() {
